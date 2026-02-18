@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle Gateway UDP</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            max-width: 500px;
+            width: 100%;
+        }
+        h1 {
+            color: #fff;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .config {
+            margin-bottom: 20px;
+        }
+        .config label {
+            color: #ccc;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .config input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            overflow-y: scroll;
+            height: 40vh;
+            padding: 0px 15px;
+        }
+        .btn {
+            padding: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-1 { background: #F25922;; color: white; }
+        .btn-2 { background: #fff; color: #F25922; }
+
+        #status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background: rgba(0,0,0,0.3);
+            color: #0f0;
+            font-family: monospace;
+            min-height: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎛️ Controle Gateway</h1>
+        
+        <div class="config">
+            <label>IP do Gateway:</label>
+            <input type="text" id="gateway_ip" value="127.0.0.1">
+            <label>Porta UDP:</label>
+            <input type="number" id="gateway_port" value="9092">
+        </div>
+        
+        <div class="buttons-grid">
+            <button class="btn btn-1" onclick="sendCommand('SPEEDBUZZ,150,0#')">SPEEDBUZZ 150</button>
+            <button class="btn btn-1" onclick="sendCommand('SPEEDBUZZ,0,0#')">SPEEDBUZZ OFF</button>
+
+            <button class="btn btn-2" onclick="sendSpeedTimed()">SPEEDTIMED 50 AMANHÃ</button>
+            <script>
+                function sendSpeedTimed() {
+                    // Pega data atual e adiciona 1 dia
+                    const amanha = new Date();
+                    amanha.setDate(amanha.getDate() + 1);
+                    
+                    // Converte para Unix timestamp (segundos)
+                    const timestamp = Math.floor(amanha.getTime() / 1000);
+                    
+                    const cmd = `SPEEDTIMED,50,${timestamp}#`;
+                    sendCommand(cmd);
+                }
+            </script>
+            <button class="btn btn-2" onclick="sendCommand('SPEEDTIMED,50,0#')">SPEEDTIMED OFF</button>
+
+            <button class="btn btn-1" onclick="sendCommand('RFID,1#')">ATIVAR RFID MODO 1</button>
+            <button class="btn btn-1" onclick="sendCommand('RFID,2#')">ATIVAR RFID MODO 2</button>
+            <button class="btn btn-1" onclick="sendCommand('RFID,0#')">DESATIVAR RFID</button>
+            <button class="btn btn-1"></button>
+
+            <button class="btn btn-2" onclick="sendCommand('RFIDRLY1,1#')">RFID RELAY1 ON</button>
+            <button class="btn btn-2" onclick="sendCommand('RFIDRLY1,0#')">RFID RELAY1 OFF</button>
+
+            <button class="btn btn-1" onclick="sendCommand('RFIDRLY2,1#')">RFID RELAY2 ON</button>
+            <button class="btn btn-1" onclick="sendCommand('RFIDRLY2,0#')">RFID RELAY2 OFF</button>
+
+            <button class="btn btn-2" onclick="sendCommand('MILEAGE=200#')">MILEAGE 200</button>
+            <button class="btn btn-2" onclick="sendCommand('MILEAGE=0#')">MILEAGE 0</button>
+
+            <button class="btn btn-1" onclick="sendCommand('SECSMETER,4294967294#')">SECSMETER</button>
+            <button class="btn btn-1" onclick="sendCommand('SECSMETER,0#')">SECSMETER 0</button>
+
+            <button class="btn btn-2" onclick="sendCommand('TIMER,10,1800#')">TIMER 10 10</button>
+            <button class="btn btn-2" onclick="sendCommand('TIMER,30,1800#')">TIMER 60 3600</button>
+
+            <button class="btn btn-1" onclick="sendCommand('ACCLINE,0#')">ACCLINE ON</button>
+            <button class="btn btn-1" onclick="sendCommand('ACCLINE,0#')">ACCLINE OFF</button>
+
+            <button class="btn btn-2" onclick="sendCommand('RELAY2,1#')">RELAY1 ON</button>
+            <button class="btn btn-2" onclick="sendCommand('RELAY,10#')">RELAY1 10s</button>
+            <button class="btn btn-2" onclick="sendCommand('RELAY,30#')">RELAY1 30s</button>
+            <button class="btn btn-2" onclick="sendCommand('RELAY,0#')">RELAY1 OFF</button>
+
+            <button class="btn btn-1" onclick="sendCommand('OFFRELAY,1#')">OFFRELAY ON</button>
+            <button class="btn btn-1" onclick="sendCommand('OFFRELAY,0#')">OFFRELAY OFF</button>
+
+            <button class="btn btn-2" onclick="sendCommand('RELAY2,1#')">RELAY2 ON</button>
+            <button class="btn btn-2" onclick="sendCommand('RELAY2,10#')">RELAY2 10s</button>
+            <button class="btn btn-2" onclick="sendCommand('RELAY2,30#')">RELAY2 30s</button>
+            <button class="btn btn-2" onclick="sendCommand('RELAY2,0#')">RELAY2 OFF</button>
+
+            <button class="btn btn-1" onclick="sendCommand('OVSPDRLY1,1#')">OVERSPEED RELAY1 ON</button>
+            <button class="btn btn-1" onclick="sendCommand('OVSPDRLY1,0#')">OVERSPEED RELAY1 OFF</button>
+
+            <button class="btn btn-2" onclick="sendCommand('OVSPDRLY2,1#')">OVERSPEED RELAY2 ON</button>
+            <button class="btn btn-2" onclick="sendCommand('OVSPDRLY2,0#')">OVERSPEED RELAY2 OFF</button>
+
+            <button class="btn btn-1" onclick="sendCommand('BUZZVOL,10#')">BUZZVOL 10</button>
+            <button class="btn btn-1" onclick="sendCommand('BUZZVOL,50#')">BUZZVOL 50</button>
+        </div>
+        
+        <div id="status">Aguardando comando...</div>
+    </div>
+
+    <script>
+        function sendCommand(cmd) {
+            const ip = document.getElementById('gateway_ip').value;
+            const port = document.getElementById('gateway_port').value;
+            const status = document.getElementById('status');
+            
+            status.innerHTML = `Enviando: ${cmd}...`;
+            
+            fetch('send_udp.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: `ip=${encodeURIComponent(ip)}&port=${encodeURIComponent(port)}&cmd=${encodeURIComponent(cmd)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    status.innerHTML = `✅ Enviado: "${cmd}" para ${ip}:${port}`;
+                    status.style.color = '#0f0';
+                } else {
+                    status.innerHTML = `❌ Erro: ${data.error}`;
+                    status.style.color = '#f00';
+                }
+            })
+            .catch(err => {
+                status.innerHTML = `❌ Erro de conexão: ${err}`;
+                status.style.color = '#f00';
+            });
+        }
+    </script>
+</body>
+</html>
