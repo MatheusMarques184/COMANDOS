@@ -161,12 +161,55 @@
             <button class="btn btn-1" onclick="sendCommand('BUZZVOL,10#')">BUZZVOL 10</button>
             <button class="btn btn-1" onclick="sendCommand('BUZZVOL,50#')">BUZZVOL 50</button>
         </div>
-        
+        <!-- <div class="config" style="margin-top: 20px;">
+            <label>Comando personalizado</label>
+            <div style="display: flex;">
+                <input type="text" id="customCommand" placeholder="Digite um comando">
+                <button onclick="sendCustomCommand()">Enviar</button>
+            </div>
+        </div> -->
         <div id="status">Aguardando comando...</div>
     </div>
 
     <script>
+        function sendCustomCommand() {
+            const cmd = document.getElementById('customCommand').value;
+            const status = document.getElementById('status');
+            if(!cmd.endsWith('#')) {
+                status.innerHTML = `❌ Erro: comando invalido`;
+                status.style.color = '#f00';
+            }
+        }   
+
         function sendCommand(cmd) {
+            const ip = document.getElementById('gateway_ip').value;
+            const port = parseInt(document.getElementById('gateway_port').value);
+            const status = document.getElementById('status');
+            
+            status.innerHTML = `Enviando: ${cmd}...`;
+            fetch('http://localhost:3000/send_udp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ip, port, cmd })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    status.innerHTML = `✅ Enviado: "${cmd}" para ${ip}:${port}`;
+                    status.style.color = '#0f0';
+                } else {
+                    status.innerHTML = `❌ Erro: ${data.error}`;
+                    status.style.color = '#f00';
+                }
+            })
+            .catch(err => {
+                status.innerHTML = `❌ Erro de conexão: ${err}`;
+                status.style.color = '#f00';
+            });
+        }
+
+
+        function sendCommandPHP(cmd) {
             const ip = document.getElementById('gateway_ip').value;
             const port = document.getElementById('gateway_port').value;
             const status = document.getElementById('status');
