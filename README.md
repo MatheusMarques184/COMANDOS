@@ -11,6 +11,8 @@ node server.js
 
 Deixe o rastreador se comunicar com o gateway ao menos 1 vez.
 
+> **Recomendação:** Conecte somente 1 rastreador por vez pois os comandos serao enviados ao ultimo rastreador.
+> 
 ## 3\. Iniciar o Servidor Web
 
 ```bash
