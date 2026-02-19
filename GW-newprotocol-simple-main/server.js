@@ -1,9 +1,6 @@
 import { createSocket } from 'dgram';
 const server = createSocket('udp4');
 import { parseLogin, parseLocation } from './packets.js';
-//import { connect, pool } from './db.js';
-
-//await connect();
 
 const adress = "0.0.0.0";
 const port = 9193;
@@ -85,70 +82,7 @@ server.on('error', (err) => {
     server.close();
 });
 
-const deviceTimers = new Map();
-const INACTIVITY_TIMEOUT = 5000; // 5 seconds
-
-async function onDeviceInactivity(deviceKey, imei) {
-    console.log(`Device ${deviceKey} inactivity`);
-
-    try {
-        //await pool.connect();
-        //const requestSelect = pool.request();
-
-        const selectCommandQuery = `
-            SELECT TOP 1 ID, SEQUENCE_COMMAND, COMMAND, TRY_SEND
-            FROM SEND_COMMANDS(nolock)
-            WHERE IMEI = @imei 
-            AND TRY_SEND > 0 
-            AND RECEIVED_ACK = 0
-            ORDER BY ID 
-        `
-       // requestSelect.input('imei', BigInt(imei));
-
-        //const result = await requestSelect.query(selectCommandQuery);
-        
-        //if (result.recordset.length > 0) {
-        if (0 > 0) {
-        for (const [index, row] of result.recordset.entries()) {
-                console.log(`Comando ${index + 1}:`);
-                console.log(`  SEQUENCE: ${row.SEQUENCE_COMMAND}`);
-                console.log(`  COMANDO: ${row.COMMAND}`);
-                
-                const sendCommand = createCommand(imei, row.SEQUENCE_COMMAND, row.COMMAND);
-                const conn = deviceKey.split('-');
-                console.log(conn);
-
-                await new Promise((resolve, reject) => {
-                    server.send(sendCommand, conn[1], conn[0], async (err) => {
-                        if (err) {
-                            console.error('Erro on send response:', err);
-                            reject(err);
-                        } else {
-                            console.log(`Commando sent: ${sendCommand.toString('hex').toUpperCase()}`);
-
-                            const updateTryQuery = `
-                                UPDATE SEND_COMMANDS 
-                                SET TRY_SEND = TRY_SEND - 1 
-                                WHERE ID = @ID 
-                            `;
-                           // const request = pool.request();
-                            //request.input('ID', BigInt(row.ID));
-                            //await request.query(updateTryQuery);
-                            //resolve();
-                        }
-                    });
-                });
-            }
-        } else {
-            console.log(`No commands found for IMEI: ${imei}`);
-        }
-    } catch (error) {
-        console.error('Error:', error);
-    }
-}
-
 async function comandReceived(sequence, imei) {
-
     /*
     SPEEDBUZZ,150,0#
     SPEEDTIMED,50,1768591456#//VELOCIDADE MAXIMA DO BUZZER, EXPIRANDO NO UNIX TIMESTAMP
@@ -168,7 +102,6 @@ async function comandReceived(sequence, imei) {
     SIMPIN,1212#//<ACTIVE_PIN>, para preservar o chip, o PIN sera enviado somente 2 vexes, a ultima fica reservado para manualmente retirar o pin 
     BUZZVOL,50#///BUZZER VOLUME PERCENT, FROM 0 TO 50(default 50)
     */
-
     console.log("Ack command Imei=%d, Sequence Code=%d", imei, sequence);
 
     try {
@@ -186,21 +119,6 @@ async function comandReceived(sequence, imei) {
     } catch (error) {
         console.error('Error:', error);
 
-    }
-}
-
-function resetDeviceTimer(deviceKey, imei, evt_type) {
-    if (deviceTimers.has(deviceKey)) {
-        clearTimeout(deviceTimers.get(deviceKey));
-    }
-    
-    if(evt_type == 0x06){
-        const timer = setTimeout(() => onDeviceInactivity(deviceKey, imei), 100);
-        deviceTimers.set(deviceKey, timer);
-    }
-    else{
-        const timer = setTimeout(() => onDeviceInactivity(deviceKey, imei), INACTIVITY_TIMEOUT);
-        deviceTimers.set(deviceKey, timer);
     }
 }
 
@@ -285,9 +203,6 @@ server.on('message', async (msg, rinfo) => {
     infoPacket.quantityMiniPackets = msg.slice(14,15).readUInt8();
 
     console.log(infoPacket);
-
-    const deviceKey = `${rinfo.address}-${rinfo.port}`;
-    resetDeviceTimer(deviceKey, infoPacket.imei, infoPacket.type);
 
     lastAddres = `${rinfo.address}`;
     lastPort = `${rinfo.port}`;
@@ -395,15 +310,6 @@ server.on('message', async (msg, rinfo) => {
                 console.log("Packet size: " + onePacketLength);
                 console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
                 parseLocation(bufferOnlyPackets);
-            //     const mandaComando = createCommand(862095060432207, 10, "RELAY2,1#");
-            //     console.log("mandando o pacote " + mandaComando.toString('hex'));
-            //     await server.send(mandaComando, rinfo.port, rinfo.address, async (err) => {
-            //     if (err) {
-            //         console.error('Error sending response: ' + err);
-            //     } else {
-            //         console.log(`Response sent: ${response.toString('hex').toUpperCase()}`);
-            //     }
-            // });
             break;
         
             default:
