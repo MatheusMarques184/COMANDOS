@@ -93,7 +93,7 @@
             <label>IP do Gateway:</label>
             <input type="text" id="gateway_ip" value="127.0.0.1">
             <label>Porta UDP:</label>
-            <input type="number" id="gateway_port" value="9092">
+            <input type="number" id="gateway_port" value="9193">
         </div>
         
         <div class="buttons-grid">
@@ -130,7 +130,7 @@
             <button class="btn btn-2" onclick="sendCommand('MILEAGE=200#')">MILEAGE 200</button>
             <button class="btn btn-2" onclick="sendCommand('MILEAGE=0#')">MILEAGE 0</button>
 
-            <button class="btn btn-1" onclick="sendCommand('SECSMETER,4294967294#')">SECSMETER</button>
+            <button class="btn btn-1" onclick="sendCommand('SECSMETER,4294967294#')">SECSMETER 4294967294</button>
             <button class="btn btn-1" onclick="sendCommand('SECSMETER,0#')">SECSMETER 0</button>
 
             <button class="btn btn-2" onclick="sendCommand('TIMER,10,1800#')">TIMER 10 10</button>
@@ -139,7 +139,7 @@
             <button class="btn btn-1" onclick="sendCommand('ACCLINE,0#')">ACCLINE ON</button>
             <button class="btn btn-1" onclick="sendCommand('ACCLINE,0#')">ACCLINE OFF</button>
 
-            <button class="btn btn-2" onclick="sendCommand('RELAY2,1#')">RELAY1 ON</button>
+            <button class="btn btn-2" onclick="sendCommand('RELAY,1#')">RELAY1 ON</button>
             <button class="btn btn-2" onclick="sendCommand('RELAY,10#')">RELAY1 10s</button>
             <button class="btn btn-2" onclick="sendCommand('RELAY,30#')">RELAY1 30s</button>
             <button class="btn btn-2" onclick="sendCommand('RELAY,0#')">RELAY1 OFF</button>

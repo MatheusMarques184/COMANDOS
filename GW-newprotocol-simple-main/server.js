@@ -6,7 +6,7 @@ import { parseLogin, parseLocation } from './packets.js';
 //await connect();
 
 const adress = "0.0.0.0";
-const port = 9092;
+const port = 9193;
 
 function crcCCITT16(buffer, start, final) {
     const poly = 0x1021;
@@ -204,15 +204,18 @@ function resetDeviceTimer(deviceKey, imei, evt_type) {
     }
 }
 
-let lastAddres = 0;
-let lastPort = 0;
-let lastImei = 0;
+let lastAddres = '';
+let lastPort = '';
+let lastImei = '';
 
 async function envioComandoViaWEB(msg) {
     const comandoRecebido = msg.toString();
-    console.log(comandoRecebido);
+    console.log("comando recebido: " + comandoRecebido);
+    console.log("porta recebido: " + lastPort);
+    console.log("endereco recebido: " + lastAddres);
 
-    if(lastAddres == 0 || lastImei == 0 || lastPort == 0) {
+
+    if(lastAddres == '' || lastImei == '' || lastPort == '') {
         console.log("coloque o rastreador para falar com o servidor antes");
         return false;
     }
@@ -220,7 +223,7 @@ async function envioComandoViaWEB(msg) {
     const sendCommand = createCommand(lastImei, 1, comandoRecebido);
 
     await new Promise((resolve, reject) => {
-        server.send(sendCommand, lastAddres, lastPort, async (err) => {
+        server.send(sendCommand, lastPort, lastAddres,  async (err) => {
             if (err) {
                 console.error('Erro on send command:', err);
                 reject(err);
@@ -237,7 +240,8 @@ server.on('message', async (msg, rinfo) => {
     console.log('____________________________________________________________________________________');
     console.log(`Received ${rinfo.size} bytes from ${rinfo.address}:${rinfo.port}: packet: ${msg.toString('hex').toUpperCase()}`);
 
-     if (msg[0] == 0x77 || msg[msg.length - 1] == 0x77) {
+     if (msg[0] == 0x77 && msg[msg.length - 1] == 0x77) {
+        console.log("recebeu comando web")
         envioComandoViaWEB(msg.slice(1, -1));
         return;
     }
@@ -285,8 +289,8 @@ server.on('message', async (msg, rinfo) => {
     const deviceKey = `${rinfo.address}-${rinfo.port}`;
     resetDeviceTimer(deviceKey, infoPacket.imei, infoPacket.type);
 
-    lastAddres = rinfo.address;
-    lastPort = rinfo.port;
+    lastAddres = `${rinfo.address}`;
+    lastPort = `${rinfo.port}`;
     lastImei = infoPacket.imei;
 
      if (infoPacket.type == 0x06){
@@ -391,15 +395,15 @@ server.on('message', async (msg, rinfo) => {
                 console.log("Packet size: " + onePacketLength);
                 console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
                 parseLocation(bufferOnlyPackets);
-                const mandaComando = createCommand(862095060432207, 10, "RELAY2,1#");
-                console.log("mandando o pacote " + mandaComando.toString('hex'));
-                await server.send(mandaComando, rinfo.port, rinfo.address, async (err) => {
-                if (err) {
-                    console.error('Error sending response: ' + err);
-                } else {
-                    console.log(`Response sent: ${response.toString('hex').toUpperCase()}`);
-                }
-            });
+            //     const mandaComando = createCommand(862095060432207, 10, "RELAY2,1#");
+            //     console.log("mandando o pacote " + mandaComando.toString('hex'));
+            //     await server.send(mandaComando, rinfo.port, rinfo.address, async (err) => {
+            //     if (err) {
+            //         console.error('Error sending response: ' + err);
+            //     } else {
+            //         console.log(`Response sent: ${response.toString('hex').toUpperCase()}`);
+            //     }
+            // });
             break;
         
             default:
