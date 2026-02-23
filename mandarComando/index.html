@@ -100,17 +100,16 @@
             <button class="btn btn-1" onclick="sendCommand('SPEEDBUZZ,150,0#')">SPEEDBUZZ 150</button>
             <button class="btn btn-1" onclick="sendCommand('SPEEDBUZZ,0,0#')">SPEEDBUZZ OFF</button>
 
-            <button class="btn btn-2" onclick="sendSpeedTimed()">SPEEDTIMED 50 AMANHÃ</button>
+            <button class="btn btn-2" onclick="sendCommandTomorrow('SPEEDTIMED,50,')">SPEEDTIMED 50 AMANHÃ</button>
             <script>
-                function sendSpeedTimed() {
-                    // Pega data atual e adiciona 1 dia
+                function sendCommandTomorrow(command) {
                     const amanha = new Date();
                     amanha.setDate(amanha.getDate() + 1);
                     
                     // Converte para Unix timestamp (segundos)
                     const timestamp = Math.floor(amanha.getTime() / 1000);
                     
-                    const cmd = `SPEEDTIMED,50,${timestamp}#`;
+                    const cmd = `${command}${timestamp}#`;
                     sendCommand(cmd);
                 }
             </script>
@@ -144,8 +143,8 @@
             <button class="btn btn-2" onclick="sendCommand('RELAY,30#')">RELAY1 30s</button>
             <button class="btn btn-2" onclick="sendCommand('RELAY,0#')">RELAY1 OFF</button>
 
-            <button class="btn btn-1" onclick="sendCommand('OFFRELAY,1#')">OFFRELAY ON</button>
-            <button class="btn btn-1" onclick="sendCommand('OFFRELAY,0#')">OFFRELAY OFF</button>
+            <button class="btn btn-1" onclick="sendCommandTomorrow('DTRELAY1,100,')">DTRELAY1 AMANHÃ</button>
+            <button class="btn btn-1" onclick="sendCommandTomorrow('DTRELAY2,100,')">DTRELAY2 AMANHÃ</button>
 
             <button class="btn btn-2" onclick="sendCommand('RELAY2,1#')">RELAY2 ON</button>
             <button class="btn btn-2" onclick="sendCommand('RELAY2,10#')">RELAY2 10s</button>
@@ -238,4 +237,5 @@
         }
     </script>
 </body>
+
 </html>
