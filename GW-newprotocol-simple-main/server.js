@@ -189,10 +189,11 @@ async function envioComandoViaWEB(msg) {
 }
 
 server.on('message', async (msg, rinfo) => {
-
-    console.log('____________________________________________________________________________________');
-    console.log('____________________________________________________________________________________');
-    console.log(`Received ${rinfo.size} bytes from ${rinfo.address}:${rinfo.port}: packet: ${msg.toString('hex').toUpperCase()}`);
+        console.log('____________________________________________________________________________________');
+        console.log('____________________________________________________________________________________');
+    if(!GwSimple){
+        console.log(`Received ${rinfo.size} bytes from ${rinfo.address}:${rinfo.port}: packet: ${msg.toString('hex').toUpperCase()}`);
+    }
 
      if (msg[0] == 0x77 && msg[msg.length - 1] == 0x77) {
         envioComandoViaWEB(msg.slice(1, -1));
@@ -216,13 +217,17 @@ server.on('message', async (msg, rinfo) => {
     infoPacket.receivedCrc= msg.readUInt16BE(msg.length -3);
     let msgWithoutCrc = [...msg.slice(1, msg.length - 3)]  
     const calculatedCrc = crcCCITT16(msgWithoutCrc, 0, msgWithoutCrc.length);
-    console.log(`Received CRC: 0x${infoPacket.receivedCrc.toString(16).toUpperCase().padStart(4, '0')} Calculated CRC: 0x${calculatedCrc.toString(16).toUpperCase().padStart(4, '0')} CRC Correto? ${calculatedCrc === infoPacket.receivedCrc ? 'Sim' : 'Não'}`);
+    if(!GwSimple){
+        console.log(`Received CRC: 0x${infoPacket.receivedCrc.toString(16).toUpperCase().padStart(4, '0')} Calculated CRC: 0x${calculatedCrc.toString(16).toUpperCase().padStart(4, '0')} CRC Correto? ${calculatedCrc === infoPacket.receivedCrc ? 'Sim' : 'Não'}`);
+    }
     if(calculatedCrc != infoPacket.receivedCrc){
         return false;
     }
 
     infoPacket.packetLength = msg.slice(2,4).readUint16BE();
-    console.log("Size of received packet: %d, declared package size: %d", msgWithoutCrc.length, infoPacket.packetLength);
+    if(!GwSimple){
+        console.log("Size of received packet: %d, declared package size: %d", msgWithoutCrc.length, infoPacket.packetLength);
+    }
     if(infoPacket.packetLength != msgWithoutCrc.length) {
         return false;
     }
@@ -237,7 +242,11 @@ server.on('message', async (msg, rinfo) => {
 
     infoPacket.quantityMiniPackets = msg.slice(14,15).readUInt8();
 
-    console.log(infoPacket);
+    if(GwSimple){
+        console.log("imei: " + infoPacket.imei);
+    } else {
+        console.log(infoPacket);
+    }
 
     lastAddres = `${rinfo.address}`;
     lastPort = `${rinfo.port}`;
@@ -266,9 +275,9 @@ server.on('message', async (msg, rinfo) => {
 
     await server.send(response, rinfo.port, rinfo.address, async (err) => {
         if (err) {
-            console.error('Error sending response: ' + err);
+            console.error('Erro ao mandar resposta: ' + err);
         } else {
-            console.log(`Response sent: ${response.toString('hex').toUpperCase()}`);
+            console.log(`Resposta enviada: ${response.toString('hex').toUpperCase()}`);
         }
     });
 
@@ -277,7 +286,9 @@ server.on('message', async (msg, rinfo) => {
         let onePacketLength = bufferOnlyPackets[0];
         let receivedPacketCrc= bufferOnlyPackets.readUInt16BE(onePacketLength);
         const calculatedPacketCrc = crcCCITT16(bufferOnlyPackets, 0, onePacketLength);
-        console.log(`CRC Recebido: 0x${receivedPacketCrc.toString(16).toUpperCase().padStart(4, '0')} CRC Calculado: 0x${calculatedPacketCrc.toString(16).toUpperCase().padStart(4, '0')} CRC Correto? ${receivedPacketCrc === calculatedPacketCrc ? 'Sim' : 'Não'}`);
+        if(!GwSimple){
+            console.log(`CRC Recebido: 0x${receivedPacketCrc.toString(16).toUpperCase().padStart(4, '0')} CRC Calculado: 0x${calculatedPacketCrc.toString(16).toUpperCase().padStart(4, '0')} CRC Correto? ${receivedPacketCrc === calculatedPacketCrc ? 'Sim' : 'Não'}`);
+        }
         if(receivedPacketCrc != calculatedPacketCrc){
             return false;
         }  
@@ -285,140 +296,117 @@ server.on('message', async (msg, rinfo) => {
         let packetType = bufferOnlyPackets.readUint8(1);
 
         if(GwSimple){
+            let pacote;
             switch (packetType) {
                 case 0x01:
                     console.log("System info");
-                    console.log("Packet size: " + onePacketLength);
-                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                    parseLogin(bufferOnlyPackets);
                 break;
 
                 case 0x02:
                     console.log("Ligou IGN");
-                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
-                    console.log("Packet size: " + onePacketLength);
-                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                    pacote = parseLocation(bufferOnlyPackets, false)
+                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 
                 case 0x03:
                     console.log("Desligou IGN");
-                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
-                    console.log("Packet size: " + onePacketLength);
-                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                    pacote = parseLocation(bufferOnlyPackets, false)
+                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x04:
                     console.log("Posicao normal");
-                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
-                    console.log("Packet size: " + onePacketLength);
-                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                    pacote = parseLocation(bufferOnlyPackets, false)
+                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x07:
                     console.log("Queda de energia");
-                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
-                    console.log("Packet size: " + onePacketLength);
-                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                    pacote = parseLocation(bufferOnlyPackets, false)
+                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x08:
                     console.log("Restauracao de energia");
-                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
-                    console.log("Packet size: " + onePacketLength);
-                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                    pacote = parseLocation(bufferOnlyPackets, false)
+                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x0A:
                     console.log("SAIDA1 START CORTE");
-                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
-                    console.log("Packet size: " + onePacketLength);
-                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                    pacote = parseLocation(bufferOnlyPackets, false)
+                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x0B:
                     console.log("SAIDA1 ON");
-                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
-                    console.log("Packet size: " + onePacketLength);
-                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                    pacote = parseLocation(bufferOnlyPackets, false)
+                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x0C:
                     console.log("SAIDA1 OFF");
-                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
-                    console.log("Packet size: " + onePacketLength);
-                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                    pacote = parseLocation(bufferOnlyPackets, false)
+                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x0D:
                     console.log("IN1 ON");
-                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
-                    console.log("Packet size: " + onePacketLength);
-                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                    pacote = parseLocation(bufferOnlyPackets, false)
+                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x0E:
                     console.log("IN2 ON");
-                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
-                    console.log("Packet size: " + onePacketLength);
-                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                    pacote = parseLocation(bufferOnlyPackets, false)
+                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x0F:
                     console.log("IN2 OFF");
-                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
-                    console.log("Packet size: " + onePacketLength);
-                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                    pacote = parseLocation(bufferOnlyPackets, false)
+                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x10:
                     console.log("POSIN ON");
-                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
-                    console.log("Packet size: " + onePacketLength);
-                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                    pacote = parseLocation(bufferOnlyPackets, false)
+                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x11:
                     console.log("POSIN OFF");
-                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
-                    console.log("Packet size: " + onePacketLength);
-                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                    pacote = parseLocation(bufferOnlyPackets, false)
+                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x26:
                     console.log("DESLOOCU SEM IGN");
-                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
-                    console.log("Packet size: " + onePacketLength);
-                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                    pacote = parseLocation(bufferOnlyPackets, false)
+                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x29:
                     console.log("IN1 OFF");
-                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
-                    console.log("Packet size: " + onePacketLength);
-                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                    pacote = parseLocation(bufferOnlyPackets, false)
+                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x2A:
                     console.log("SAIDA2 ON");
-                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
-                    console.log("Packet size: " + onePacketLength);
-                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                    pacote = parseLocation(bufferOnlyPackets, false)
+                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x2B:
                     console.log("SAIDA2 OFF");
-                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
-                    console.log("Packet size: " + onePacketLength);
-                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                    pacote = parseLocation(bufferOnlyPackets, false)
+                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x2C:
                     console.log("SAIDA2 START CORTE");
-                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
-                    console.log("Packet size: " + onePacketLength);
-                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                    pacote = parseLocation(bufferOnlyPackets, false)
+                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x3B:
                     console.log("SAIDA1 AUTO DESCORTE");
-                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
-                    console.log("Packet size: " + onePacketLength);
-                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                    pacote = parseLocation(bufferOnlyPackets, false)
+                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x3C:
                     console.log("SAIDA2 AUTO DESCORTE");
-                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
-                    console.log("Packet size: " + onePacketLength);
-                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                    pacote = parseLocation(bufferOnlyPackets, false)
+                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
             
                 default:
                     console.log("unknown packet");
-                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
-                    console.log("Packet size: " + onePacketLength);
-                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
                 break;
             }
         }

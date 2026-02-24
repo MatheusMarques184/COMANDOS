@@ -1,4 +1,4 @@
-export async function parseLogin(bufferOnlyPackets) {
+export function parseLogin(bufferOnlyPackets) {
     const infoLogin = {
         eventDate: null,
         controlByte: null,
@@ -36,11 +36,9 @@ export async function parseLogin(bufferOnlyPackets) {
     const systemInfo = `TrackerType: ${infoLogin.trackerType} | Version: ${infoLogin.version} | Subversion: ${infoLogin.subVersion} | RFID Version: ${infoLogin.RFIDversion} | ICCID: ${infoLogin.ICCID} | Boot: ${infoLogin.quantityBoot} | Connections: ${infoLogin.quantityConnection} | Debug Version: ${infoLogin.debugVersion}`
 
     console.log(systemInfo);
-
-    console.log("saving in DB...")
 }
 
-export async function parseLocation(bufferOnlyPackets) {
+export function parseLocation(bufferOnlyPackets, showLog = true) {
     const infoLocation = {
         eventDate: null,
         controlByte: null,
@@ -151,7 +149,9 @@ export async function parseLocation(bufferOnlyPackets) {
 
     //3 bytes, 0x000000, reserved
 
-    console.log(infoLocation);
-
-    console.log("saving in DB...");
+    if(showLog){
+        console.log(infoLocation);
+    }
+    
+    return infoLocation
 }
