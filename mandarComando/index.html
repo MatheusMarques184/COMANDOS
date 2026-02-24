@@ -23,7 +23,7 @@
             padding: 30px;
             border-radius: 15px;
             backdrop-filter: blur(10px);
-            max-width: 500px;
+            max-width: 750px;
             width: 100%;
         }
         h1 {
@@ -45,10 +45,11 @@
             border: none;
             border-radius: 5px;
             margin-bottom: 10px;
+            margin-right: 10px;
         }
         .buttons-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 15px;
             overflow-y: scroll;
             height: 40vh;
@@ -94,13 +95,16 @@
             <input type="text" id="gateway_ip" value="127.0.0.1">
             <label>Porta UDP:</label>
             <input type="number" id="gateway_port" value="9193">
+            <label>Imei:</label>
+            <input type="text" id="imei">
+            <button class="btn btn-1" onclick="sendCommand('GwSimple#')">Alterar modo de exibição do GW</button>
         </div>
         
         <div class="buttons-grid">
-            <button class="btn btn-1" onclick="sendCommand('SPEEDBUZZ,150,0#')">SPEEDBUZZ 150</button>
-            <button class="btn btn-1" onclick="sendCommand('SPEEDBUZZ,0,0#')">SPEEDBUZZ OFF</button>
+            <button class="btn btn-1" onclick="sendCommand('SPEEDBUZZ,150#')">SPEEDBUZZ 150</button>
+            <button class="btn btn-1" onclick="sendCommand('SPEEDBUZZ,0#')">SPEEDBUZZ OFF</button>
 
-            <button class="btn btn-2" onclick="sendCommandTomorrow('SPEEDTIMED,50,')">SPEEDTIMED 50 AMANHÃ</button>
+            <button class="btn btn-1" onclick="sendCommandTomorrow('SPEEDTIMED,50,')">SPEEDTIMED 50 AMANHÃ</button>
             <script>
                 function sendCommandTomorrow(command) {
                     const amanha = new Date();
@@ -113,28 +117,25 @@
                     sendCommand(cmd);
                 }
             </script>
-            <button class="btn btn-2" onclick="sendCommand('SPEEDTIMED,50,0#')">SPEEDTIMED OFF</button>
+            <button class="btn btn-1" onclick="sendCommand('SPEEDTIMED,50,0#')">SPEEDTIMED OFF</button>
 
-            <button class="btn btn-1" onclick="sendCommand('RFID,1#')">ATIVAR RFID MODO 1</button>
-            <button class="btn btn-1" onclick="sendCommand('RFID,2#')">ATIVAR RFID MODO 2</button>
-            <button class="btn btn-1" onclick="sendCommand('RFID,0#')">DESATIVAR RFID</button>
-            <button class="btn btn-1"></button>
+            <button class="btn btn-2" onclick="sendCommand('RFID,1#')">ATIVAR RFID MODO 1</button>
+            <button class="btn btn-2" onclick="sendCommand('RFID,2#')">ATIVAR RFID MODO 2</button>
+            <button class="btn btn-2" onclick="sendCommand('RFID,0#')">DESATIVAR RFID</button>
+            <button class="btn btn-2"></button>
 
-            <button class="btn btn-2" onclick="sendCommand('RFIDRLY1,1#')">RFID RELAY1 ON</button>
-            <button class="btn btn-2" onclick="sendCommand('RFIDRLY1,0#')">RFID RELAY1 OFF</button>
-
+            <button class="btn btn-1" onclick="sendCommand('RFIDRLY1,1#')">RFID RELAY1 ON</button>
+            <button class="btn btn-1" onclick="sendCommand('RFIDRLY1,0#')">RFID RELAY1 OFF</button>
             <button class="btn btn-1" onclick="sendCommand('RFIDRLY2,1#')">RFID RELAY2 ON</button>
             <button class="btn btn-1" onclick="sendCommand('RFIDRLY2,0#')">RFID RELAY2 OFF</button>
 
             <button class="btn btn-2" onclick="sendCommand('MILEAGE=200#')">MILEAGE 200</button>
             <button class="btn btn-2" onclick="sendCommand('MILEAGE=0#')">MILEAGE 0</button>
+            <button class="btn btn-2" onclick="sendCommand('SECSMETER,4294967294#')">SECSMETER 4294967294</button>
+            <button class="btn btn-2" onclick="sendCommand('SECSMETER,0#')">SECSMETER 0</button>
 
-            <button class="btn btn-1" onclick="sendCommand('SECSMETER,4294967294#')">SECSMETER 4294967294</button>
-            <button class="btn btn-1" onclick="sendCommand('SECSMETER,0#')">SECSMETER 0</button>
-
-            <button class="btn btn-2" onclick="sendCommand('TIMER,10,1800#')">TIMER 10 10</button>
-            <button class="btn btn-2" onclick="sendCommand('TIMER,30,1800#')">TIMER 60 3600</button>
-
+            <button class="btn btn-1" onclick="sendCommand('TIMER,10,10#')">TIMER 10 10</button>
+            <button class="btn btn-1" onclick="sendCommand('TIMER,60,3600#')">TIMER 60 3600</button>
             <button class="btn btn-1" onclick="sendCommand('ACCLINE,1#')">ACCLINE ON</button>
             <button class="btn btn-1" onclick="sendCommand('ACCLINE,0#')">ACCLINE OFF</button>
 
@@ -143,29 +144,25 @@
             <button class="btn btn-2" onclick="sendCommand('RELAY1,1,30,0#')">RELAY1 30s</button>
             <button class="btn btn-2" onclick="sendCommand('RELAY1,0,0,0#')">RELAY1 OFF</button>
 
-            <button class="btn btn-2" onclick="sendCommand('RELAY2,1,0,0#')">RELAY2 ON</button>
-            <button class="btn btn-2" onclick="sendCommand('RELAY2,1,10,0#')">RELAY2 10s</button>
-            <button class="btn btn-2" onclick="sendCommand('RELAY2,1,30,0#')">RELAY2 30s</button>
-            <button class="btn btn-2" onclick="sendCommand('RELAY2,0,0,0#')">RELAY2 OFF</button>
+            <button class="btn btn-1" onclick="sendCommand('RELAY2,1,0,0#')">RELAY2 ON</button>
+            <button class="btn btn-1" onclick="sendCommand('RELAY2,1,10,0#')">RELAY2 10s</button>
+            <button class="btn btn-1" onclick="sendCommand('RELAY2,1,30,0#')">RELAY2 30s</button>
+            <button class="btn btn-1" onclick="sendCommand('RELAY2,0,0,0#')">RELAY2 OFF</button>
 
-            <button class="btn btn-1" onclick="sendCommandTomorrow('RELAY1,1,0,')">RELAY1 AMANHÃ</button>
-            <button class="btn btn-1" onclick="sendCommandTomorrow('RELAY2,1,0,')">RELAY2 AMANHÃ</button>
+            <button class="btn btn-2" onclick="sendCommandTomorrow('RELAY1,1,0,')">RELAY1 AMANHÃ</button>
+            <button class="btn btn-2" onclick="sendCommandTomorrow('RELAY2,1,0,')">RELAY2 AMANHÃ</button>
+            <button class="btn btn-2" onclick="sendCommand('OVSPDRLY1,1#')">OVERSPEED RELAY1 ON</button>
+            <button class="btn btn-2" onclick="sendCommand('OVSPDRLY1,0#')">OVERSPEED RELAY1 OFF</button>
 
-            
-
-            <button class="btn btn-1" onclick="sendCommand('OVSPDRLY1,1#')">OVERSPEED RELAY1 ON</button>
-            <button class="btn btn-1" onclick="sendCommand('OVSPDRLY1,0#')">OVERSPEED RELAY1 OFF</button>
-
-            <button class="btn btn-2" onclick="sendCommand('OVSPDRLY2,1#')">OVERSPEED RELAY2 ON</button>
-            <button class="btn btn-2" onclick="sendCommand('OVSPDRLY2,0#')">OVERSPEED RELAY2 OFF</button>
-
+            <button class="btn btn-1" onclick="sendCommand('OVSPDRLY2,1#')">OVERSPEED RELAY2 ON</button>
+            <button class="btn btn-1" onclick="sendCommand('OVSPDRLY2,0#')">OVERSPEED RELAY2 OFF</button>
             <button class="btn btn-1" onclick="sendCommand('BUZZVOL,10#')">BUZZVOL 10</button>
             <button class="btn btn-1" onclick="sendCommand('BUZZVOL,50#')">BUZZVOL 50</button>
         </div>
         <div class="config" style="margin-top: 20px;">
             <label>Comando personalizado</label>
             <div style="display: flex;">
-                <input type="text" id="customCommand" placeholder="Digite um comando">
+                <input type="text" id="customCommand" placeholder="Digite um comando" style="margin-bottom: 0px;">
                 <button onclick="sendCustomCommand()">Enviar</button>
             </div>
         </div>
@@ -188,13 +185,14 @@
         function sendCommand(cmd) {
             const ip = document.getElementById('gateway_ip').value;
             const port = parseInt(document.getElementById('gateway_port').value);
+            const imei = document.getElementById('imei').value;
             const status = document.getElementById('status');
             
             status.innerHTML = `Enviando: ${cmd}...`;
             fetch('http://localhost:3000/send_udp', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ip, port, cmd })
+                body: JSON.stringify({ ip, port, imei, cmd })
             })
             .then(response => response.json())
             .then(data => {

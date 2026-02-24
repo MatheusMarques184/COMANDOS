@@ -19,13 +19,33 @@ const server = http.createServer((req, res) => {
         req.on('data', chunk => body += chunk);
         req.on('end', () => {
             try {
-                const { ip, port, cmd } = JSON.parse(body);
+                const { ip, port, imei, cmd } = JSON.parse(body);
+
+                const imeiLimpo = imei.toString().trim();
+
+                let imeiBuffer;
+                imeiBuffer = BigInt(imeiLimpo);
+
+                const imeiBytes = Buffer.alloc(8);
+                imeiBytes.writeBigUInt64BE(imeiBuffer);
 
                 if (!ip || !port || !cmd) {
                     return res.end(JSON.stringify({ success: false, error: 'Parâmetros inválidos' }));
                 }
 
-                const message = Buffer.from([0x77, ...Buffer.from(cmd), 0x77]);
+                if(!imei) {
+                    imeiBuffer = BigInt(0);
+                } else {
+                    imeiBuffer = BigInt(imei);
+                }
+                imeiBytes.writeBigUInt64BE(imeiBuffer);
+
+                const message = Buffer.concat([
+                    Buffer.from([0x77]),
+                    imeiBytes,
+                    Buffer.from(cmd),
+                    Buffer.from([0x77])
+                ]);
                 const client = dgram.createSocket('udp4');
 
                 client.send(message, port, ip, (err) => {
