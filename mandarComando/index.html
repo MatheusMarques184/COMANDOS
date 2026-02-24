@@ -135,21 +135,23 @@
             <button class="btn btn-2" onclick="sendCommand('TIMER,10,1800#')">TIMER 10 10</button>
             <button class="btn btn-2" onclick="sendCommand('TIMER,30,1800#')">TIMER 60 3600</button>
 
-            <button class="btn btn-1" onclick="sendCommand('ACCLINE,0#')">ACCLINE ON</button>
+            <button class="btn btn-1" onclick="sendCommand('ACCLINE,1#')">ACCLINE ON</button>
             <button class="btn btn-1" onclick="sendCommand('ACCLINE,0#')">ACCLINE OFF</button>
 
-            <button class="btn btn-2" onclick="sendCommand('RELAY,1#')">RELAY1 ON</button>
-            <button class="btn btn-2" onclick="sendCommand('RELAY,10#')">RELAY1 10s</button>
-            <button class="btn btn-2" onclick="sendCommand('RELAY,30#')">RELAY1 30s</button>
-            <button class="btn btn-2" onclick="sendCommand('RELAY,0#')">RELAY1 OFF</button>
+            <button class="btn btn-2" onclick="sendCommand('RELAY1,1,0,0#')">RELAY1 ON</button>
+            <button class="btn btn-2" onclick="sendCommand('RELAY1,1,10,0#')">RELAY1 10s</button>
+            <button class="btn btn-2" onclick="sendCommand('RELAY1,1,30,0#')">RELAY1 30s</button>
+            <button class="btn btn-2" onclick="sendCommand('RELAY1,0,0,0#')">RELAY1 OFF</button>
 
-            <button class="btn btn-1" onclick="sendCommandTomorrow('DTRELAY1,100,')">DTRELAY1 AMANHÃ</button>
-            <button class="btn btn-1" onclick="sendCommandTomorrow('DTRELAY2,100,')">DTRELAY2 AMANHÃ</button>
+            <button class="btn btn-2" onclick="sendCommand('RELAY2,1,0,0#')">RELAY2 ON</button>
+            <button class="btn btn-2" onclick="sendCommand('RELAY2,1,10,0#')">RELAY2 10s</button>
+            <button class="btn btn-2" onclick="sendCommand('RELAY2,1,30,0#')">RELAY2 30s</button>
+            <button class="btn btn-2" onclick="sendCommand('RELAY2,0,0,0#')">RELAY2 OFF</button>
 
-            <button class="btn btn-2" onclick="sendCommand('RELAY2,1#')">RELAY2 ON</button>
-            <button class="btn btn-2" onclick="sendCommand('RELAY2,10#')">RELAY2 10s</button>
-            <button class="btn btn-2" onclick="sendCommand('RELAY2,30#')">RELAY2 30s</button>
-            <button class="btn btn-2" onclick="sendCommand('RELAY2,0#')">RELAY2 OFF</button>
+            <button class="btn btn-1" onclick="sendCommandTomorrow('RELAY1,1,0,')">RELAY1 AMANHÃ</button>
+            <button class="btn btn-1" onclick="sendCommandTomorrow('RELAY2,1,0,')">RELAY2 AMANHÃ</button>
+
+            
 
             <button class="btn btn-1" onclick="sendCommand('OVSPDRLY1,1#')">OVERSPEED RELAY1 ON</button>
             <button class="btn btn-1" onclick="sendCommand('OVSPDRLY1,0#')">OVERSPEED RELAY1 OFF</button>
@@ -160,13 +162,13 @@
             <button class="btn btn-1" onclick="sendCommand('BUZZVOL,10#')">BUZZVOL 10</button>
             <button class="btn btn-1" onclick="sendCommand('BUZZVOL,50#')">BUZZVOL 50</button>
         </div>
-        <!-- <div class="config" style="margin-top: 20px;">
+        <div class="config" style="margin-top: 20px;">
             <label>Comando personalizado</label>
             <div style="display: flex;">
                 <input type="text" id="customCommand" placeholder="Digite um comando">
                 <button onclick="sendCustomCommand()">Enviar</button>
             </div>
-        </div> -->
+        </div>
         <div id="status">Aguardando comando...</div>
     </div>
 
@@ -178,6 +180,9 @@
                 status.innerHTML = `❌ Erro: comando invalido`;
                 status.style.color = '#f00';
             }
+            status.innerHTML = ``;
+            status.style.color = '#0f0';
+            sendCommand(cmd);
         }   
 
         function sendCommand(cmd) {
