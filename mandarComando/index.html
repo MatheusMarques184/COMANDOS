@@ -44,9 +44,28 @@
             padding: 10px;
             border: none;
             border-radius: 5px;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
             margin-right: 10px;
         }
+
+        .config button {
+            width: 100%;
+        }
+
+        .custom label {
+            color: #ccc;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .custom input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            margin-right: 10px;
+        }
+
         .buttons-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -97,26 +116,13 @@
             <input type="number" id="gateway_port" value="9193">
             <label>Imei:</label>
             <input type="text" id="imei">
-            <button class="btn btn-1" onclick="sendCommand('GwSimple#')">Alterar modo de exibição do GW</button>
+            <button class="btn btn-2" onclick="sendCommand('GwSimple#')">Alterar modo de exibição do GW</button>
         </div>
         
         <div class="buttons-grid">
             <button class="btn btn-1" onclick="sendCommand('SPEEDBUZZ,150#')">SPEEDBUZZ 150</button>
             <button class="btn btn-1" onclick="sendCommand('SPEEDBUZZ,0#')">SPEEDBUZZ OFF</button>
-
             <button class="btn btn-1" onclick="sendCommandTomorrow('SPEEDTIMED,50,')">SPEEDTIMED 50 AMANHÃ</button>
-            <script>
-                function sendCommandTomorrow(command) {
-                    const amanha = new Date();
-                    amanha.setDate(amanha.getDate() + 1);
-                    
-                    // Converte para Unix timestamp (segundos)
-                    const timestamp = Math.floor(amanha.getTime() / 1000);
-                    
-                    const cmd = `${command}${timestamp}#`;
-                    sendCommand(cmd);
-                }
-            </script>
             <button class="btn btn-1" onclick="sendCommand('SPEEDTIMED,50,0#')">SPEEDTIMED OFF</button>
 
             <button class="btn btn-2" onclick="sendCommand('RFID,1#')">ATIVAR RFID MODO 1</button>
@@ -159,34 +165,54 @@
             <button class="btn btn-1" onclick="sendCommand('BUZZVOL,10#')">BUZZVOL 10</button>
             <button class="btn btn-1" onclick="sendCommand('BUZZVOL,50#')">BUZZVOL 50</button>
         </div>
-        <div class="config" style="margin-top: 20px;">
+        <div class="custom" style="margin-top: 20px;">
             <label>Comando personalizado</label>
             <div style="display: flex;">
                 <input type="text" id="customCommand" placeholder="Digite um comando" style="margin-bottom: 0px;">
-                <button onclick="sendCustomCommand()">Enviar</button>
+                <button class="btn btn-1" onclick="sendCustomCommand()">Enviar</button>
             </div>
         </div>
         <div id="status">Aguardando comando...</div>
     </div>
 
     <script>
+        function sendCommandTomorrow(command) {
+            const amanha = new Date();
+            amanha.setDate(amanha.getDate() + 1);
+                    
+            const timestamp = Math.floor(amanha.getTime() / 1000);
+                    
+            const cmd = `${command}${timestamp}#`;
+            sendCommand(cmd);
+        }
+
         function sendCustomCommand() {
             const cmd = document.getElementById('customCommand').value;
             const status = document.getElementById('status');
-            if(!cmd.endsWith('#')) {
-                status.innerHTML = `❌ Erro: comando invalido`;
-                status.style.color = '#f00';
-            }
+
             status.innerHTML = ``;
             status.style.color = '#0f0';
+
+            console.log(cmd)
+
+            if(!cmd.endsWith('#') || cmd == "") {
+                status.innerHTML = `❌ Erro: comando invalido`;
+                status.style.color = '#f00';
+                return;
+            }
+
             sendCommand(cmd);
         }   
 
         function sendCommand(cmd) {
+            
             const ip = document.getElementById('gateway_ip').value;
             const port = parseInt(document.getElementById('gateway_port').value);
             const imei = document.getElementById('imei').value;
             const status = document.getElementById('status');
+
+            status.innerHTML = ``;
+            status.style.color = '#0f0';
             
             status.innerHTML = `Enviando: ${cmd}...`;
             fetch('http://localhost:3000/send_udp', {
