@@ -5,6 +5,10 @@ import { parseLogin, parseLocation } from './packets.js';
 const adress = "0.0.0.0";
 const port = 9193;
 
+const devices = new Map();
+
+let GwSimple = false
+
 function crcCCITT16(buffer, start, final) {
     const poly = 0x1021;
     let crc = 0xFFFF;
@@ -127,15 +131,47 @@ let lastPort = '';
 let lastImei = '';
 
 async function envioComandoViaWEB(msg) {
-    const comandoRecebido = msg.toString();
-    console.log("comando recebido: " + comandoRecebido);
-    console.log("porta recebido: " + lastPort);
-    console.log("endereco recebido: " + lastAddres);
+    const imeiBuffer = msg.slice(0, 8);
+    const cmdBuffer  = msg.slice(8);
 
+    const imeiRecebido = imeiBuffer.readBigUInt64BE().toString(); // lê como uint64
+    const comandoRecebido = cmdBuffer.toString('utf8');           // lê como string
+
+    console.log("imei recebido: " + imeiRecebido);
+    console.log("comando recebido: " + comandoRecebido);
+
+    if(comandoRecebido == "GwSimple#") {
+        GwSimple = !GwSimple;
+        return;
+    }
 
     if(lastAddres == '' || lastImei == '' || lastPort == '') {
-        console.log("coloque o rastreador para falar com o servidor antes");
+        console.log("coloque um rastreador para falar com o servidor antes");
         return false;
+    }
+
+    if(imeiRecebido !== "0") {
+        const sendCommand = createCommand(imeiRecebido, 1, comandoRecebido);
+
+        const targetDevice = devices.get(imeiRecebido);
+
+        if (!targetDevice) return false;
+
+        const targetIp = targetDevice.address;
+        const targetPort = targetDevice.port;
+
+        await new Promise((resolve, reject) => {
+            server.send(sendCommand, targetPort, targetIp,  async (err) => {
+                if (err) {
+                    console.error('Erro on send command:', err);
+                    reject(err);
+                } else {
+                    console.log(`Command sent: ${sendCommand.toString('hex').toUpperCase()}`)
+                }
+            });
+        })
+
+    return
     }
 
     const sendCommand = createCommand(lastImei, 1, comandoRecebido);
@@ -159,7 +195,6 @@ server.on('message', async (msg, rinfo) => {
     console.log(`Received ${rinfo.size} bytes from ${rinfo.address}:${rinfo.port}: packet: ${msg.toString('hex').toUpperCase()}`);
 
      if (msg[0] == 0x77 && msg[msg.length - 1] == 0x77) {
-        console.log("recebeu comando web")
         envioComandoViaWEB(msg.slice(1, -1));
         return;
     }
@@ -208,6 +243,12 @@ server.on('message', async (msg, rinfo) => {
     lastPort = `${rinfo.port}`;
     lastImei = infoPacket.imei;
 
+    devices.set(infoPacket.imei, {
+        address: rinfo.address,
+        port: rinfo.port,
+        lastSeen: new Date()
+    });
+
      if (infoPacket.type == 0x06){
         console.log("ACK");
         comandReceived(infoPacket.sequence, infoPacket.imei);   
@@ -243,83 +284,193 @@ server.on('message', async (msg, rinfo) => {
 
         let packetType = bufferOnlyPackets.readUint8(1);
 
-        /*
-            evento_INFOS = 0x01,
-            evento_LIGOUIGN = 0x02,
-            evento_DESLIGOUIGN = 0x03,
-            evento_POSICAO = 0x04,
+        if(GwSimple){
+            switch (packetType) {
+                case 0x01:
+                    console.log("System info");
+                    console.log("Packet size: " + onePacketLength);
+                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                break;
 
-            evento_QUEDAENERGIA = 0x07,
-            evento_DESQUEDAENERGIA = 0x08,
-
-            evento_SAIDA1_START_CORTE = 0x0A,
-            evento_SAIDA1_ON = 0x0B, 
-            evento_SAIDA1_OFF = 0x0C,
-
-            evento_IN1_ON = 0x0D,
-
-            evento_IN2_ON = 0x0E, 
-            evento_IN2_OFF = 0x0F, 
-
-            evento_POSIN_ON = 0x10,
-            evento_POSIN_OFF = 0x11,
-
-            evento_DESLOCOU_SEM_IGN = 0x26,
-
-            evento_IN1_OFF = 0x29,
-
-            evento_SAIDA2_ON = 0x2A,
-            evento_SAIDA2_OFF = 0x2B,
-
-            evento_SAIDA1_AUTO_DESCORTE = 0x3B,
-        */
-        
-        switch (packetType) {
-            case 0x01:
-                if(onePacketLength != 38) {
-                    return false
-                }
-                console.log("System info");
-                console.log("Packet size: " + onePacketLength);
-                console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
-                parseLogin(bufferOnlyPackets);
-            break;
-
-            case 0x02:
-            case 0x03:
-            case 0x04:
-            case 0x07:
-            case 0x08:
-            case 0x0A:
-            case 0x0B:
-            case 0x0C:
-            case 0x0D:
-            case 0x0E:
-            case 0x0F:
-            case 0x10:
-            case 0x11:
-            case 0x26:
-            case 0x29:
-            case 0x2A:
-            case 0x2B:
-            case 0x3B:
-                if(onePacketLength != 59) {
-                    return false;
-                }
-                console.log("Packet type: " + packetType.toString(16).toUpperCase());
-                console.log("Packet size: " + onePacketLength);
-                console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
-                parseLocation(bufferOnlyPackets);
-            break;
-        
-            default:
-                console.log("unknown packet");
-                console.log("Packet type: " + packetType.toString(16).toUpperCase());
-                console.log("Packet size: " + onePacketLength);
-                console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
-            break;
+                case 0x02:
+                    console.log("Ligou IGN");
+                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
+                    console.log("Packet size: " + onePacketLength);
+                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                break;
+                
+                case 0x03:
+                    console.log("Desligou IGN");
+                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
+                    console.log("Packet size: " + onePacketLength);
+                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                break;
+                case 0x04:
+                    console.log("Posicao normal");
+                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
+                    console.log("Packet size: " + onePacketLength);
+                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                break;
+                case 0x07:
+                    console.log("Queda de energia");
+                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
+                    console.log("Packet size: " + onePacketLength);
+                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                break;
+                case 0x08:
+                    console.log("Restauracao de energia");
+                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
+                    console.log("Packet size: " + onePacketLength);
+                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                break;
+                case 0x0A:
+                    console.log("SAIDA1 START CORTE");
+                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
+                    console.log("Packet size: " + onePacketLength);
+                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                break;
+                case 0x0B:
+                    console.log("SAIDA1 ON");
+                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
+                    console.log("Packet size: " + onePacketLength);
+                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                break;
+                case 0x0C:
+                    console.log("SAIDA1 OFF");
+                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
+                    console.log("Packet size: " + onePacketLength);
+                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                break;
+                case 0x0D:
+                    console.log("IN1 ON");
+                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
+                    console.log("Packet size: " + onePacketLength);
+                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                break;
+                case 0x0E:
+                    console.log("IN2 ON");
+                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
+                    console.log("Packet size: " + onePacketLength);
+                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                break;
+                case 0x0F:
+                    console.log("IN2 OFF");
+                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
+                    console.log("Packet size: " + onePacketLength);
+                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                break;
+                case 0x10:
+                    console.log("POSIN ON");
+                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
+                    console.log("Packet size: " + onePacketLength);
+                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                break;
+                case 0x11:
+                    console.log("POSIN OFF");
+                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
+                    console.log("Packet size: " + onePacketLength);
+                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                break;
+                case 0x26:
+                    console.log("DESLOOCU SEM IGN");
+                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
+                    console.log("Packet size: " + onePacketLength);
+                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                break;
+                case 0x29:
+                    console.log("IN1 OFF");
+                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
+                    console.log("Packet size: " + onePacketLength);
+                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                break;
+                case 0x2A:
+                    console.log("SAIDA2 ON");
+                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
+                    console.log("Packet size: " + onePacketLength);
+                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                break;
+                case 0x2B:
+                    console.log("SAIDA2 OFF");
+                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
+                    console.log("Packet size: " + onePacketLength);
+                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                break;
+                case 0x2C:
+                    console.log("SAIDA2 START CORTE");
+                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
+                    console.log("Packet size: " + onePacketLength);
+                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                break;
+                case 0x3B:
+                    console.log("SAIDA1 AUTO DESCORTE");
+                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
+                    console.log("Packet size: " + onePacketLength);
+                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                break;
+                case 0x3C:
+                    console.log("SAIDA2 AUTO DESCORTE");
+                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
+                    console.log("Packet size: " + onePacketLength);
+                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                break;
+            
+                default:
+                    console.log("unknown packet");
+                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
+                    console.log("Packet size: " + onePacketLength);
+                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                break;
+            }
         }
+        else{
+            switch (packetType) {
+                case 0x01:
+                    if(onePacketLength != 38) {
+                        return false
+                    }
+                    console.log("System info");
+                    console.log("Packet size: " + onePacketLength);
+                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                    parseLogin(bufferOnlyPackets);
+                break;
 
+                case 0x02:
+                case 0x03:
+                case 0x04:
+                case 0x07:
+                case 0x08:
+                case 0x0A:
+                case 0x0B:
+                case 0x0C:
+                case 0x0D:
+                case 0x0E:
+                case 0x0F:
+                case 0x10:
+                case 0x11:
+                case 0x26:
+                case 0x29:
+                case 0x2A:
+                case 0x2B:
+                case 0x2C:
+                case 0x3B:
+                case 0x3C:
+                    if(onePacketLength != 59) {
+                        return false;
+                    }
+                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
+                    console.log("Packet size: " + onePacketLength);
+                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                    parseLocation(bufferOnlyPackets);
+                break;
+            
+                default:
+                    console.log("unknown packet");
+                    console.log("Packet type: " + packetType.toString(16).toUpperCase());
+                    console.log("Packet size: " + onePacketLength);
+                    console.log("Mini Packet: " + bufferOnlyPackets.toString('hex').toUpperCase());
+                break;
+            }
+        }
         bufferOnlyPackets = bufferOnlyPackets.slice(onePacketLength + 2);
     }
 });
