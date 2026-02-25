@@ -107,7 +107,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎛️ Controle Gateway</h1>
+        <h1><img src="logo_32bras.webp" alt="" srcset=""></h1>
         
         <div class="config">
             <label>IP do Gateway:</label>
@@ -120,10 +120,10 @@
         </div>
         
         <div class="buttons-grid">
-            <button class="btn btn-1" onclick="sendCommand('SPEEDBUZZ,150#')">SPEEDBUZZ 150</button>
+            <button class="btn btn-1" onclick="sendCommand('SPEEDBUZZ,60#')">SPEEDBUZZ 60</button>
             <button class="btn btn-1" onclick="sendCommand('SPEEDBUZZ,0#')">SPEEDBUZZ OFF</button>
-            <button class="btn btn-1" onclick="sendCommandTomorrow('SPEEDTIMED,50,')">SPEEDTIMED 50 AMANHÃ</button>
-            <button class="btn btn-1" onclick="sendCommand('SPEEDTIMED,50,0#')">SPEEDTIMED OFF</button>
+            <button class="btn btn-1" onclick="sendCommandFiveMin('SPEEDTIMED,100,')">SPEEDTIMED 100 TIMESTAMP 5MIN</button>
+            <button class="btn btn-1" onclick="sendCommand('SPEEDTIMED,100,0#')">SPEEDTIMED OFF</button>
 
             <button class="btn btn-2" onclick="sendCommand('RFID,1#')">ATIVAR RFID MODO 1</button>
             <button class="btn btn-2" onclick="sendCommand('RFID,2#')">ATIVAR RFID MODO 2</button>
@@ -140,7 +140,7 @@
             <button class="btn btn-2" onclick="sendCommand('SECSMETER,4294967294#')">SECSMETER 4294967294</button>
             <button class="btn btn-2" onclick="sendCommand('SECSMETER,0#')">SECSMETER 0</button>
 
-            <button class="btn btn-1" onclick="sendCommand('TIMER,10,10#')">TIMER 10 10</button>
+            <button class="btn btn-1" onclick="sendCommand('TIMER,20,60#')">TIMER 20 60</button>
             <button class="btn btn-1" onclick="sendCommand('TIMER,60,3600#')">TIMER 60 3600</button>
             <button class="btn btn-1" onclick="sendCommand('ACCLINE,1#')">ACCLINE ON</button>
             <button class="btn btn-1" onclick="sendCommand('ACCLINE,0#')">ACCLINE OFF</button>
@@ -155,15 +155,21 @@
             <button class="btn btn-1" onclick="sendCommand('RELAY2,1,30,0#')">RELAY2 30s</button>
             <button class="btn btn-1" onclick="sendCommand('RELAY2,0,0,0#')">RELAY2 OFF</button>
 
-            <button class="btn btn-2" onclick="sendCommandTomorrow('RELAY1,1,0,')">RELAY1 AMANHÃ</button>
-            <button class="btn btn-2" onclick="sendCommandTomorrow('RELAY2,1,0,')">RELAY2 AMANHÃ</button>
+            
             <button class="btn btn-2" onclick="sendCommand('OVSPDRLY1,1#')">OVERSPEED RELAY1 ON</button>
             <button class="btn btn-2" onclick="sendCommand('OVSPDRLY1,0#')">OVERSPEED RELAY1 OFF</button>
+            <button class="btn btn-2" onclick="sendCommand('OVSPDRLY2,1#')">OVERSPEED RELAY2 ON</button>
+            <button class="btn btn-2" onclick="sendCommand('OVSPDRLY2,0#')">OVERSPEED RELAY2 OFF</button>
 
-            <button class="btn btn-1" onclick="sendCommand('OVSPDRLY2,1#')">OVERSPEED RELAY2 ON</button>
-            <button class="btn btn-1" onclick="sendCommand('OVSPDRLY2,0#')">OVERSPEED RELAY2 OFF</button>
-            <button class="btn btn-1" onclick="sendCommand('BUZZVOL,10#')">BUZZVOL 10</button>
-            <button class="btn btn-1" onclick="sendCommand('BUZZVOL,50#')">BUZZVOL 50</button>
+            <button class="btn btn-1" onclick="sendCommandFiveMin('RELAY1,1,0,')">RELAY1 TIMESTAMP 5MIN</button>
+            <button class="btn btn-1" onclick="sendCommandFiveMin('RELAY2,1,0,')">RELAY2 TIMESTAMP 5MIN</button>
+            <button class="btn btn-1" onclick="sendCommand('ANGLETMT,20#')">ANGLETMT 20</button>
+            <button class="btn btn-1" onclick="sendCommand('ANGLETMT,0#')">ANGLETMT OFF</button>
+
+            <button class="btn btn-2" onclick="sendCommand('SPEEDPUNISH,20,30,1,0#')">SPEEDPUNISH 20 30 1 0</button>
+            <button class="btn btn-2" onclick="sendCommand('SPEEDPUNISH,20,30,0,1#')">SPEEDPUNISH 20 30 0 1</button>
+            <button class="btn btn-2" onclick="sendCommand('SPEEDPUNISH,10,10,1,1#')">SPEEDPUNISH 10 10 1 1</button>
+            <button class="btn btn-2" onclick="sendCommand('SPEEDPUNISH,0,0,0,0#')">SPEEDPUNISH OFF</button>
         </div>
         <div class="custom" style="margin-top: 20px;">
             <label>Comando personalizado</label>
@@ -176,9 +182,17 @@
     </div>
 
     <script>
-        function sendCommandTomorrow(command) {
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedIp = localStorage.getItem('gateway_ip');
+            const savedPort = localStorage.getItem('gateway_port');
+
+            if (savedIp !== null) document.getElementById('gateway_ip').value = savedIp;
+            if (savedPort !== null) document.getElementById('gateway_port').value = savedPort;
+        });
+
+        function sendCommandFiveMin(command) {
             const amanha = new Date();
-            amanha.setDate(amanha.getDate() + 1);
+            amanha.setMinutes(amanha.getMinutes() + 5);
                     
             const timestamp = Math.floor(amanha.getTime() / 1000);
                     
@@ -225,6 +239,9 @@
                 if (data.success) {
                     status.innerHTML = `✅ Enviado: "${cmd}" para ${ip}:${port}`;
                     status.style.color = '#0f0';
+
+                    localStorage.setItem('gateway_ip', ip);
+                    localStorage.setItem('gateway_port', port);
                 } else {
                     status.innerHTML = `❌ Erro: ${data.error}`;
                     status.style.color = '#f00';
