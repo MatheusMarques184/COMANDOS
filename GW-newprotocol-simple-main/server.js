@@ -404,6 +404,11 @@ server.on('message', async (msg, rinfo) => {
                     pacote = parseLocation(bufferOnlyPackets, false)
                     console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
+                case 0x3D:
+                    console.log("Posicao por angulo");
+                    pacote = parseLocation(bufferOnlyPackets, false)
+                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                break;
             
                 default:
                     console.log("unknown packet");
@@ -442,6 +447,7 @@ server.on('message', async (msg, rinfo) => {
                 case 0x2C:
                 case 0x3B:
                 case 0x3C:
+                case 0x3D:
                     if(onePacketLength != 59) {
                         return false;
                     }
