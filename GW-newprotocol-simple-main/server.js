@@ -282,7 +282,9 @@ server.on('message', async (msg, rinfo) => {
     });
 
     for (let index = 0; index < infoPacket.quantityMiniPackets; index++) {
-        console.log(`-------------------------PACOTINHO: ${index}-------------------------`);
+        if(!GwSimple){
+            console.log(`-------------------------PACOTINHO: ${index}-------------------------`);
+        }
         let onePacketLength = bufferOnlyPackets[0];
         let receivedPacketCrc= bufferOnlyPackets.readUInt16BE(onePacketLength);
         const calculatedPacketCrc = crcCCITT16(bufferOnlyPackets, 0, onePacketLength);
@@ -304,114 +306,93 @@ server.on('message', async (msg, rinfo) => {
                 break;
 
                 case 0x02:
-                    console.log("Ligou IGN");
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`Ligou IGN | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 
                 case 0x03:
-                    console.log("Desligou IGN");
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`Desligou IGN | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x04:
-                    console.log("Posicao normal");
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`Posicao normal | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x07:
-                    console.log("Queda de energia");
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`Queda de energia | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x08:
-                    console.log("Restauracao de energia");
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`Restauracao de energia | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x0A:
-                    console.log("SAIDA1 START CORTE");
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`SAIDA1 START CORTE | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x0B:
-                    console.log("SAIDA1 ON");
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`SAIDA1 ON | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x0C:
-                    console.log("SAIDA1 OFF");
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`SAIDA1 OFF | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x0D:
-                    console.log("IN1 ON");
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`IN1 ON | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x0E:
-                    console.log("IN2 ON");
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`IN2 ON | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x0F:
-                    console.log("IN2 OFF");
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`IN2 OFF | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x10:
-                    console.log("POSIN ON");
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`POSIN ON | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x11:
-                    console.log("POSIN OFF");
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`POSIN OFF | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x26:
-                    console.log("DESLOOCU SEM IGN");
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`DESLOOCU SEM IGN | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x29:
-                    console.log("IN1 OFF");
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`IN1 OFF | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x2A:
-                    console.log("SAIDA2 ON");
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`SAIDA2 ON | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x2B:
-                    console.log("SAIDA2 OFF");
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`SAIDA2 OFF | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x2C:
-                    console.log("SAIDA2 START CORTE");
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`SAIDA2 START CORTE | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x3B:
-                    console.log("SAIDA1 AUTO DESCORTE");
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`SAIDA1 AUTO DESCORTE | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x3C:
-                    console.log("SAIDA2 AUTO DESCORTE");
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`SAIDA2 AUTO DESCORTE | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x3D:
-                    console.log("Posicao por angulo");
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`Posicao por angulo | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
             
                 default:
-                    console.log("unknown packet");
+                    console.log("Pacote desconhecido");
                 break;
             }
         }
