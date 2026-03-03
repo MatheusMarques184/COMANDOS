@@ -242,9 +242,7 @@ server.on('message', async (msg, rinfo) => {
 
     infoPacket.quantityMiniPackets = msg.slice(14,15).readUInt8();
 
-    if(GwSimple){
-        console.log("imei: " + infoPacket.imei);
-    } else {
+    if(!GwSimple){
         console.log(infoPacket);
     }
 
@@ -277,7 +275,9 @@ server.on('message', async (msg, rinfo) => {
         if (err) {
             console.error('Erro ao mandar resposta: ' + err);
         } else {
-            console.log(`Resposta enviada: ${response.toString('hex').toUpperCase()}`);
+            if(!GwSimple){
+                console.log(`Resposta enviada: ${response.toString('hex').toUpperCase()}`);
+            }
         }
     });
 
@@ -307,40 +307,40 @@ server.on('message', async (msg, rinfo) => {
 
                 case 0x02:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`Ligou IGN | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`imei: ${infoPacket.imei} | Ligou IGN | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 
                 case 0x03:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`Desligou IGN | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`imei: ${infoPacket.imei} | Desligou IGN | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x04:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`Posicao normal | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`imei: ${infoPacket.imei} | Posicao normal | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x07:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`Queda de energia | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`imei: ${infoPacket.imei} | Queda de energia | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x08:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`Restauracao de energia | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`imei: ${infoPacket.imei} | Restauracao de energia | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x0A:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`SAIDA1 START CORTE | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`imei: ${infoPacket.imei} | SAIDA1 START CORTE | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x0B:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`SAIDA1 ON | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`imei: ${infoPacket.imei} | SAIDA1 ON | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x0C:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`SAIDA1 OFF | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`imei: ${infoPacket.imei} | SAIDA1 OFF | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x0D:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`IN1 ON | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`imei: ${infoPacket.imei} | IN1 ON | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x0E:
                     pacote = parseLocation(bufferOnlyPackets, false)
@@ -360,35 +360,35 @@ server.on('message', async (msg, rinfo) => {
                 break;
                 case 0x26:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`DESLOOCU SEM IGN | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`imei: ${infoPacket.imei} | DESLOOCU SEM IGN | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x29:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`IN1 OFF | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`imei: ${infoPacket.imei} | IN1 OFF | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x2A:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`SAIDA2 ON | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`imei: ${infoPacket.imei} | SAIDA2 ON | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x2B:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`SAIDA2 OFF | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`imei: ${infoPacket.imei} | SAIDA2 OFF | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x2C:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`SAIDA2 START CORTE | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`imei: ${infoPacket.imei} | SAIDA2 START CORTE | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x3B:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`SAIDA1 AUTO DESCORTE | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`imei: ${infoPacket.imei} | SAIDA1 AUTO DESCORTE | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x3C:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`SAIDA2 AUTO DESCORTE | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`imei: ${infoPacket.imei} | SAIDA2 AUTO DESCORTE | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x3D:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`Posicao por angulo | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`imei: ${infoPacket.imei} | Posicao por angulo | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
             
                 default:
