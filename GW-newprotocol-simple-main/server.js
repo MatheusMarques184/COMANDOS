@@ -7,7 +7,7 @@ const port = 9193;
 
 const devices = new Map();
 
-let GwSimple = false
+let GwSimple = false;
 
 function crcCCITT16(buffer, start, final) {
     const poly = 0x1021;
@@ -299,6 +299,7 @@ server.on('message', async (msg, rinfo) => {
 
         if(GwSimple){
             let pacote;
+            const dataHora = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
             switch (packetType) {
                 case 0x01:
                     console.log("System info");
@@ -307,88 +308,88 @@ server.on('message', async (msg, rinfo) => {
 
                 case 0x02:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`imei: ${infoPacket.imei} | Ligou IGN | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`[${dataHora}] imei: ${infoPacket.imei} | Ligou IGN | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 
                 case 0x03:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`imei: ${infoPacket.imei} | Desligou IGN | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`[${dataHora}] imei: ${infoPacket.imei} | Desligou IGN | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x04:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`imei: ${infoPacket.imei} | Posicao normal | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`[${dataHora}] imei: ${infoPacket.imei} | Posicao normal | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x07:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`imei: ${infoPacket.imei} | Queda de energia | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`[${dataHora}] imei: ${infoPacket.imei} | Queda de energia | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x08:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`imei: ${infoPacket.imei} | Restauracao de energia | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`[${dataHora}] imei: ${infoPacket.imei} | Restauracao de energia | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x0A:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`imei: ${infoPacket.imei} | SAIDA1 START CORTE | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`[${dataHora}] imei: ${infoPacket.imei} | SAIDA1 START CORTE | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x0B:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`imei: ${infoPacket.imei} | SAIDA1 ON | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`[${dataHora}] imei: ${infoPacket.imei} | SAIDA1 ON | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x0C:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`imei: ${infoPacket.imei} | SAIDA1 OFF | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`[${dataHora}] imei: ${infoPacket.imei} | SAIDA1 OFF | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x0D:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`imei: ${infoPacket.imei} | IN1 ON | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`[${dataHora}] imei: ${infoPacket.imei} | IN1 ON | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x0E:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`IN2 ON | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`[${dataHora}] imei: ${infoPacket.imei} | IN2 ON | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x0F:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`IN2 OFF | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`[${dataHora}] imei: ${infoPacket.imei} | IN2 OFF | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x10:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`POSIN ON | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`[${dataHora}] imei: ${infoPacket.imei} | POSIN ON | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x11:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`POSIN OFF | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`[${dataHora}] imei: ${infoPacket.imei} | POSIN OFF | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x26:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`imei: ${infoPacket.imei} | DESLOOCU SEM IGN | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`[${dataHora}] imei: ${infoPacket.imei} | DESLOOCU SEM IGN | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x29:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`imei: ${infoPacket.imei} | IN1 OFF | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`[${dataHora}] imei: ${infoPacket.imei} | IN1 OFF | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x2A:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`imei: ${infoPacket.imei} | SAIDA2 ON | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`[${dataHora}] imei: ${infoPacket.imei} | SAIDA2 ON | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x2B:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`imei: ${infoPacket.imei} | SAIDA2 OFF | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`[${dataHora}] imei: ${infoPacket.imei} | SAIDA2 OFF | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x2C:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`imei: ${infoPacket.imei} | SAIDA2 START CORTE | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`[${dataHora}] imei: ${infoPacket.imei} | SAIDA2 START CORTE | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x3B:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`imei: ${infoPacket.imei} | SAIDA1 AUTO DESCORTE | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`[${dataHora}] imei: ${infoPacket.imei} | SAIDA1 AUTO DESCORTE | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x3C:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`imei: ${infoPacket.imei} | SAIDA2 AUTO DESCORTE | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`[${dataHora}] imei: ${infoPacket.imei} | SAIDA2 AUTO DESCORTE | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
                 case 0x3D:
                     pacote = parseLocation(bufferOnlyPackets, false)
-                    console.log(`imei: ${infoPacket.imei} | Posicao por angulo | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
+                    console.log(`[${dataHora}] imei: ${infoPacket.imei} | Posicao por angulo | Latitude: ${pacote.latitude} | Longitude: ${pacote.longitude} | Ignição: ${pacote.status.ignition}`)
                 break;
             
                 default:
